@@ -1,4 +1,4 @@
-#lang racket/base
+#lang racket
 
 (require "../commons/numerics.rkt"
          "../commons/coord.rkt")
@@ -37,9 +37,6 @@
   (or (> (coord-y p1) (coord-y p2))
       (and (= (coord-y p1) (coord-y p2))
            (> (coord-x p1) (coord-x p2)))))
-;; (define (point> p1 p2 . points)
-;;   (and (apply > (map coord-y (append (list p1 p2) points)))
-;;        (apply > (map coord-x (append (list p1 p2) points)))))
 
 (define (point= p1 p2 . points)
   (and (apply = (map coord-y (append (list p1 p2) points)))
@@ -49,9 +46,6 @@
   (or (< (coord-y p1) (coord-y p2))
       (and (= (coord-y p1) (coord-y p2))
            (< (coord-x p1) (coord-x p2)))))
-;; (define (point< p1 p2 . points)
-;;   (and (apply < (map coord-y (append (list p1 p2) points)))
-;;        (apply < (map coord-x (append (list p1 p2) points)))))
 
 ;; sorted points with desendent order
 (define (adjoin-points p l)
@@ -97,6 +91,18 @@
 ;; one shape can have at most 8 different symmetric shapes,
 ;; aka. 7 transformations (reflections and rotations) plus itself
 
+(define (shape-transformations s)
+  (let ((s-transposed (shape-transpose s))
+        (s-ud-flipped (shape-refl-ud s)))
+    (list s-transposed
+          s-ud-flipped
+          (shape-refl-lr s)
+          (shape-rotate-180 s)
+          (shape-refl-ud s-transposed) ;; shape-rotate+90
+          (shape-transpose s-ud-flipped) ;; shape-rotate-90
+          (shape-rotate-180 s-transposed)))) ;; shape-refl-ulrd
+
+;; like above but a little less efficient
 ;; (define (shape-transformations s)
 ;;   (map (lambda (op) (op s))
 ;;        (list shape-refl-ud
@@ -107,21 +113,20 @@
 ;;              shape-rotate-90
 ;;              shape-refl-ulrd)))
 
-;; like above but a little bit more efficient
-(define (shape-transformations s)
-  (let ((s-transposed (shape-transpose s))
-        (s-ud-flipped (shape-refl-ud s)))
-    (list s-transposed
-          s-ud-flipped
-          (shape-refl-lr s)
-          (shape-rotate-180 s)
-          (shape-refl-ud s-transposed) ;; rotate+90
-          (shape-transpose s-ud-flipped) ;; rotate-90
-          (shape-rotate-180 s-transposed))))
+;; rotations (a one-side shape can have rotations but not reflections)
+(define (shape-rotations s)
+  (map (lambda (op) (op s))
+       (list shape-rotate-180
+             shape-rotate+90
+             shape-rotate-90)))
 
 ;; transformations including itself
 (define (shape-transformations* s)
   (cons s (shape-transformations s)))
+
+;; transformations including itself
+(define (shape-rotations* s)
+  (cons s (shape-rotations s)))
 
 (define (shape-refl-ud s)
   (make-shape
@@ -163,6 +168,17 @@
       (let ((s (car lst)))
         (cons s (remove* (shape-transformations* s)
                          (remove-identical-shapes (cdr lst)))))))
+
+;; remove duplicate shapes from a list of shapes
+;; a shape's identity is determined by each transformation in "transforms"
+(define (remove-duplicate-shapes lst [transforms null])
+  (cond ((null? lst) lst)
+        ((null? transforms)
+         (remove-duplicates lst))
+        (else
+         (let ((s (car lst)))
+           (cons s (remove* (transforms s)
+                            (remove-duplicate-shapes (cdr lst) transforms)))))))
 
 ;; translation of a shape
 ;; returns a new instance of shape

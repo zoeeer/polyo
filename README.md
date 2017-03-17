@@ -3,9 +3,9 @@
 Main functions:
 
 polyomino enumeration:
-- (gen-fixed-polyo-of n)
+- (gen-polyo-of n 'free)
+- (gen-polyo-of n 'fixed)
 - (gen-fixed-polyo-upto n)
-- (gen-free-polyo-of n)
 - (gen-free-polyo-upto n)
 
 visualize shapes:

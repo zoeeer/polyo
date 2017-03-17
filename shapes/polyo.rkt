@@ -10,11 +10,26 @@
 ; (shape-equal? x y) ; same as "equal?"
 ; (shape-identical? x y) ; true if any rotation/reflection/translation of x is equal to y 
 
+(define polyo-transformations
+  (hash 'fixed null
+        'free shape-transformations*
+        'one-sided shape-rotations*))
+
+;; enumerate various types of polyominoes
+(define (gen-polyo-of n type)
+  (cond ((= n 0) null)
+        ((= n 1)
+         (list (make-monomino)))
+        (else
+         (remove-duplicate-shapes
+          (flatmap shape-extend (gen-polyo-of (- n 1) type))
+          (hash-ref polyo-transformations type)))))
+
 ;; enumerate fixed polyominoes with n cells
 (define (gen-fixed-polyo-of n)
   (cond ((= n 0) null)
         ((= n 1)
-         (list (make-shape (list (coord 0 0)))))
+         (list (make-monomino)))
         (else
          (remove-duplicates
           (flatmap shape-extend (gen-fixed-polyo-of (- n 1)))))))
@@ -23,7 +38,7 @@
 (define (gen-fixed-polyo-upto n)
   (cond ((= n 0) null)
         ((= n 1)
-         (list (gen-fixed-polyo-of 1)))
+         (list (list (make-monomino))))
         (else
          (let* ((prev-collection
                  (gen-fixed-polyo-upto (- n 1)))
@@ -36,7 +51,7 @@
 (define (gen-free-polyo-of n)
   (cond ((= n 0) null)
         ((= n 1)
-         (gen-fixed-polyo-of 1))
+         (list (make-monomino)))
         (else
          (remove-identical-shapes
           (flatmap shape-extend (gen-free-polyo-of (- n 1)))))))
@@ -45,7 +60,7 @@
 (define (gen-free-polyo-upto n)
   (cond ((= n 0) null)
         ((= n 1)
-         (list (gen-fixed-polyo-of 1)))
+         (list (list (make-monomino))))
         (else
          (let* ((prev-collection
                  (gen-free-polyo-upto (- n 1)))
@@ -54,6 +69,9 @@
                   (flatmap shape-extend prev-set))
                  prev-collection)))))
 
+;; monomino
+(define (make-monomino)
+  (make-shape (list (coord 0 0))))
 
 ;; extend a shape at it's point p to the direction vec,
 ;; where vec can be:
