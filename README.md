@@ -30,4 +30,4 @@ The following example (see "run.rkt") generates and visualizes the Tetrominoes a
 ```
 which displays:
 
-![tetrominoes](assets/images/tetrominoes.png)
+<img src="assets/images/tetrominoes.png" width="600">
