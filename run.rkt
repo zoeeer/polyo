@@ -1,6 +1,6 @@
 #lang slideshow
 
-(require "shapes/polyomino.rkt"
+(require "shapes/polyo.rkt"
          "shapes/shape.rkt"
          "draw/draw-shape.rkt"
          "commons/helper.rkt")
