@@ -1,6 +1,7 @@
 #lang racket
 
 (require "shape.rkt"
+         "points.rkt"
          "../commons/coord.rkt"
          "../commons/helper.rkt")
 
