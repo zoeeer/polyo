@@ -26,6 +26,20 @@
           (flatmap shape-extend (gen-polyo-of (- n 1) type))
           (hash-ref polyo-transformations type)))))
 
+;; enumerate the collection of polyominoes up to n cells, given type
+(define (gen-polyo-upto n type)
+  (cond ((= n 0) null)
+        ((= n 1)
+         (list (list (make-monomino))))
+        (else
+         (let* ((prev-collection
+                 (gen-polyo-upto (- n 1) type))
+                (prev-set (car prev-collection)))
+           (cons (remove-duplicate-shapes
+                  (flatmap shape-extend prev-set)
+                  (hash-ref polyo-transformations type))
+                 prev-collection)))))
+
 ;; enumerate fixed polyominoes with n cells
 (define (gen-fixed-polyo-of n)
   (cond ((= n 0) null)

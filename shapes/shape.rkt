@@ -56,7 +56,7 @@
 ;;              shape-rotate-90
 ;;              shape-refl-ulrd)))
 
-;; rotations (a one-side shape can have rotations but not reflections)
+;; rotations (a one-sided shape can have rotations but not reflections)
 (define (shape-rotations s)
   (map (lambda (op) (op s))
        (list shape-rotate-180
